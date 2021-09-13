@@ -1,0 +1,9 @@
+
+type Query {
+  hello: String
+  sample: Activity
+}
+type Activity {
+  day: Int
+  id: ID
+}
