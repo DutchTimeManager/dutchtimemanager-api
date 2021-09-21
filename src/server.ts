@@ -1,37 +1,37 @@
 import express from 'express';
-import { graphqlHTTP } from 'express-graphql';
-import { buildSchema } from 'graphql';
+import mysql from 'mysql2';
+import { Responses } from './utils'
 
-// Construct a schema, using GraphQL schema language
-const schema = buildSchema(`
-type Query {
-    sample: Activity
-  }
-  interface Activity {
-      day: Int
-      id: ID
-  }
-`);
+const app = express();
+const port = 4000;
 
-// The root provides a resolver function for each API endpoint
-var root = {
-    hello: () => {
-        return 'Hello world!';
-    },
-    sample: () => {
-        return {
-            day: 1,
-            id: '1'
-        };
-    }
-
+const config: {host: string, user: string, password: string, database: string} = {
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'dutchtimemanager',
 };
 
-var app = express();
-app.use('/graphql', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
-}));
-app.listen(4000);
-console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+
+const pool:mysql.Pool = mysql.createPool({
+  host: config.host,
+  user: config.user,
+  database: config.database,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+// Status check of API server
+app.get('/', (req, res) => Responses.statusCheck(req, res));
+
+// Catch all other requests and responds 404
+app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
+
+// Oauth2 time!!!
+
+
+// Start server
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`)
+})
