@@ -1,0 +1,109 @@
+{
+  "main": {
+    "id": "ae49e61c187d0555",
+    "type": "split",
+    "children": [
+      {
+        "id": "46120108cfa06be4",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Main page.md",
+            "mode": "source"
+          }
+        },
+        "group": "def3f31e1e791a52"
+      },
+      {
+        "id": "01f616f622eb64ad",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Main page.md",
+            "mode": "preview"
+          }
+        },
+        "group": "def3f31e1e791a52"
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "7aa6c8bbe84d7937",
+    "type": "split",
+    "children": [
+      {
+        "id": "452a5b2ea80209fd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6757cebb5781ef97",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "b435d566537c6b58",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "fa6b96cee2df22fd",
+    "type": "split",
+    "children": [
+      {
+        "id": "0a49ac44fe5dbf4a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "650af0bec162c946",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Main page.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "46120108cfa06be4",
+  "lastOpenFiles": [
+    "Main page.md",
+    "Fundementals.md",
+    "Auth/main.md",
+    "Untitled.md"
+  ]
+}

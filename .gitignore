@@ -3,3 +3,6 @@ out/
 
 # node_modules
 node_modules/
+
+# Config with sensitive information.
+src/config.ts

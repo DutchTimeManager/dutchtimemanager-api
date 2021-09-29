@@ -6,5 +6,27 @@ interface Payload {
     'version': Required<string>,
 }
 
+interface Config {
+    db: {
+        host: string,
+        user: string,
+        password: string,
+        database: string,
+    },
+    google: {
+        clientID: string,
+        clientSecret: string,
+        redirURL: string,
+        apiKey: string,
+    },
+}
 
-export {Payload};
+interface Student {
+    firstname: string,
+    lastname: string,
+    googleid: string,
+    studentid: string,
+    email: string,
+    homeroomteacher?: string,
+}
+export { Payload, Config };
