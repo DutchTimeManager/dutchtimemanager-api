@@ -21,6 +21,25 @@ interface Config {
     },
 }
 
+class Student {
+    public firstname: string;
+    public lastname: string;
+    public googleid: string;
+    public studentid: string;
+    public hashomeroom?: boolean;
+    public homeroomlocation?: string;
+
+
+    constructor(stu: Student) {
+        this.firstname = stu.firstname;
+        this.lastname = stu.lastname;
+        this.googleid = stu.googleid;
+        this.studentid = stu.studentid;
+        this.homeroomteacher = stu.homeroomteacher;
+    }
+}
+
+
 interface Student {
     firstname: string,
     lastname: string,
@@ -29,11 +48,31 @@ interface Student {
     homeroomteacher?: string,
 }
 
+
+class Instructor {
+    public firstname: string;
+    public lastname: string;
+    public googleid: string;
+    public studentid: string;
+    public hashomeroom?: boolean;
+    public homeroomlocation?: string;
+
+
+    constructor(ins: Instructor) {
+        this.firstname = ins.firstname;
+        this.lastname = ins.lastname;
+        this.googleid = ins.googleid;
+        this.studentid = ins.studentid;
+        this.hashomeroom = ins.hashomeroom;
+        this.homeroomlocation = ins.homeroomlocation;
+    }
+}
+
 interface Instructor {
     firstname: string,
     lastname: string,
     googleid: string,
-    instructorid: string,
+    studentid: string,
     hashomeroom?: boolean,
     homeroomlocation?: string,
 }
