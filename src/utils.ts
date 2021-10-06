@@ -1,7 +1,7 @@
 import mysql from 'mysql2';
 import express from 'express';
 import { Temporal } from '@js-temporal/polyfill';
-import { Payload } from './types';
+import { Instructor, Payload, Student } from './types';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
 class Responses {
@@ -15,6 +15,7 @@ class Responses {
     public static setup(pool: mysql.Pool, googlecredentials: { id: string, secret: string, redirURL: string }) {
         Responses.pool = pool;
         Responses.OAuth2Client = new google.auth.OAuth2(googlecredentials.id, googlecredentials.secret, googlecredentials.redirURL);
+
     }
 
     /**
@@ -120,21 +121,15 @@ class Responses {
 
                         if (response?.data) {
                             console.log(response.data);
+                            let gid: string = '';
+                            if (response.data.resourceName) {
+                                gid = response.data.resourceName?.substr(7);
+                            }
+                            else
+                                return Responses.internalError(req, res, new Error('No Google ID'));
+                            Responses.userExists(gid);
 
-                            
-                            
 
-                            this.pool.query('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [response.data.resourceName?.substr(7)], (err, results) => {
-                                if (err) {
-                                    console.error(err);
-                                    Responses.internalError(req, res, err);
-                                }
-
-                                // results[0]
-
-                                console.log(results);
-
-                            });
 
                         } else {
                             return Responses.invalidRequest(req, res);
@@ -148,11 +143,89 @@ class Responses {
             Responses.invalidRequest(req, res);
         }
     }
-}
 
-class Utils {
-    checkIfStudent(googleid: string) {
+    /**
+     * Checks if the user is a student and returns a student object if there is one.
+     * 
+     * @param {string} googleid The googleid of the user.
+     */
+    private static checkIfStudent(googleid: string): Student | Error | undefined {
+
+        let student: Student | undefined = undefined;
+        Responses.pool.query('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [googleid], (err, results) => {
+            if (err) {
+                console.error(err);
+                return err;
+            }
+
+            // Data formatting so that its easier to use.
+            const sturesults: [{ firstname: string, lastname: string, googleid: string, studentid: string }] = JSON.parse(JSON.stringify(results));
+
+            if (sturesults.length > 0) {
+                student = {
+                    firstname: sturesults[0].firstname,
+                    lastname: sturesults[0].lastname,
+                    googleid: sturesults[0].googleid,
+                    studentid: sturesults[0].studentid
+                }
+            }
+        });
+        return student;
+    }
+
+    /**
+     * Checks if the user is an instructor and returns a instructor object if there is one.
+     * 
+     * @param {string} googleid The googleid of the user.
+     */
+     private static checkIfInstructor(googleid: string): Instructor | Error | undefined {
+
+        let instructor: Instructor | undefined = undefined;
+        Responses.pool.query('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid], (err, results) => {
+            if (err) {
+                console.error(err);
+                return err;
+            }
+
+            // Data formatting so that its easier to use.
+            const instresults: [{ firstname: string, lastname: string, googleid: string, instructorid: string }] = JSON.parse(JSON.stringify(results));
+
+            if (instresults.length > 0) {
+                instructor = {
+                    firstname: instresults[0].firstname,
+                    lastname: instresults[0].lastname,
+                    googleid: instresults[0].googleid,
+                    instructorid: instresults[0].instructorid
+                }
+            }
+        });
+        return instructor;
+    }
+
+    /**
+     * Checks if a user exists in the database based on googleID, returns type of user if there is one.
+     * 
+     * @param {string} googleid The googleid of the user.
+     * @returns {Student | Instructor | Error | undefined} Returns a student, instructor, or error if there is one else, returns undefined.
+     */
+    private static userExists(googleid: string): Instructor | Student | Error | undefined {
+        const instCheck: Instructor | Error | undefined = Responses.checkIfInstructor(googleid);
+        if (instCheck instanceof Error) {
+            return instCheck;
+        }
+        if (instCheck !== undefined) {
+            return instCheck;
+        }
+
+        const stucheck: Student | Error | undefined = Responses.checkIfStudent(googleid);
+        if (stucheck !== undefined) {
+            return stucheck;
+        }
+
+        return undefined;
     }
 }
+
+
 
 export { Responses };

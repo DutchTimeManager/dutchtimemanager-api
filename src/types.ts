@@ -26,7 +26,16 @@ interface Student {
     lastname: string,
     googleid: string,
     studentid: string,
-    email: string,
     homeroomteacher?: string,
 }
-export { Payload, Config };
+
+interface Instructor {
+    firstname: string,
+    lastname: string,
+    googleid: string,
+    instructorid: string,
+    hashomeroom?: boolean,
+    homeroomlocation?: string,
+}
+
+export { Payload, Config, Student, Instructor };
