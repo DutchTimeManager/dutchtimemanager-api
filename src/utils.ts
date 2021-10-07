@@ -162,12 +162,12 @@ class Responses {
 			const sturesults: [{ firstname: string, lastname: string, googleid: string, studentid: string }] = JSON.parse(JSON.stringify(results));
 
 			if (sturesults.length > 0) {
-				student = {
+				student = new Student({
 					firstname: sturesults[0].firstname,
 					lastname: sturesults[0].lastname,
 					googleid: sturesults[0].googleid,
 					studentid: sturesults[0].studentid
-				}
+				});
 			}
 		});
 		return student;
@@ -191,12 +191,12 @@ class Responses {
 			const instresults: [{ firstname: string, lastname: string, googleid: string, instructorid: string }] = JSON.parse(JSON.stringify(results));
 
 			if (instresults.length > 0) {
-				instructor = {
+				instructor = new Instructor({
 					firstname: instresults[0].firstname,
 					lastname: instresults[0].lastname,
 					googleid: instresults[0].googleid,
 					studentid: instresults[0].instructorid
-				}
+				})
 			}
 		});
 		return instructor;
