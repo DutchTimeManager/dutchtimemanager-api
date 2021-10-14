@@ -1,20 +1,22 @@
-import mysql from 'mysql2';
+
 import express from 'express';
 import { Temporal } from '@js-temporal/polyfill';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
 import { Instructor, Payload, Student } from './types';
+import Db from 'mysql2-async';
 class Responses {
-	private static pool: mysql.Pool;
+	private static pool: Db;
 
 	private static OAuth2Client: OAuth2Client;
 
 	/**
 	 * Initialize the database connection pool.
-	 * @param {mysql.pool} pool - The database connection pool.
+	 * @param {Db} pool - The database connection pool.
 	 */
-	public static setup(pool: mysql.Pool, googlecredentials: {
-		id: string,secret: string, redirURL: string}): void {
+	public static setup(pool: Db, googlecredentials: {
+		id: string, secret: string, redirURL: string
+	}): void {
 		Responses.pool = pool;
 		Responses.OAuth2Client = new google.auth.OAuth2(
 			googlecredentials.id,
@@ -63,7 +65,7 @@ class Responses {
 	 * @param {express.Request} req
 	 * @param {express.Response} res
 	 */
-	public static internalError(req: express.Request, res: express.Response, err: Error):void {
+	public static internalError(req: express.Request, res: express.Response, err: Error): void {
 		res.header('Content-Type', 'text/plain');
 		res.status(500).send(`HTTP/${req.httpVersion} ${req.method} ${req.path} Internal Server Error \n\n${err.toString()}`);
 	}
@@ -73,7 +75,7 @@ class Responses {
 	 * @param {express.Request} req
 	 * @param {express.Response} res
 	 */
-	public static startOAuth2(req: express.Request, res: express.Response):void {
+	public static startOAuth2(req: express.Request, res: express.Response): void {
 		const authUrl = Responses.OAuth2Client.generateAuthUrl({
 			access_type: 'online',
 			scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email', 'openid']
@@ -87,7 +89,7 @@ class Responses {
 	 * @param {express.Request} req
 	 * @param {express.Response} res
 	 */
-	public static catchOAuth2(req: express.Request, res: express.Response):void {
+	public static catchOAuth2(req: express.Request, res: express.Response): void {
 		let code = '';
 		if (req.query.code !== undefined) { code = req.query.code.toString(); }
 
@@ -121,7 +123,11 @@ class Responses {
 							if (response.data.resourceName) {
 								gid = response.data.resourceName?.substr(7);
 							} else { return Responses.internalError(req, res, new Error('No Google ID')); }
-							Responses.userExists(gid);
+							console.log(await Responses.userExists(gid));
+
+
+
+
 						} else {
 							return Responses.invalidRequest(req, res);
 						}
@@ -138,31 +144,24 @@ class Responses {
 	 *
 	 * @param {string} googleid The googleid of the user.
 	 */
-	private static checkIfStudent(googleid: string): Student | Error | undefined {
-		let student: Student | undefined;
-		Responses.pool.query('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [googleid], (err, results) => {
-			if (err) {
-				console.error(err);
-				return err;
-			}
-
-			// Data formatting so that its easier to use.
-			const sturesults: [{
-				firstname: string,
-				lastname: string,
-				googleid: string,
-				studentid: string
-			}] = JSON.parse(JSON.stringify(results));
-
-			if (sturesults.length > 0) {
-				student = new Student({
-					firstname: sturesults[0].firstname,
-					lastname: sturesults[0].lastname,
-					googleid: sturesults[0].googleid,
-					studentid: sturesults[0].studentid,
-				});
-			}
+	private static async checkIfStudent(googleid: string): Promise<Student | Error | undefined> {
+		let student: Student | undefined = undefined;
+		const sturesults = await Responses.pool.getrow('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [googleid]).catch(e => {
+			console.error(e);
+			return e;
 		});
+
+		console.log(sturesults);
+
+		if (sturesults) {
+			student = new Student({
+				firstname: sturesults.firstname,
+				lastname: sturesults.lastname,
+				googleid: sturesults.googleid,
+				studentid: sturesults.studentid,
+			});
+		}
+
 		return student;
 	}
 
@@ -171,26 +170,25 @@ class Responses {
 	 *
 	 * @param {string} googleid The googleid of the user.
 	 */
-	private static checkIfInstructor(googleid: string): Instructor | Error | undefined {
+	private static async checkIfInstructor(googleid: string): Promise<Instructor | Error | undefined> {
 		let instructor: Instructor | undefined = undefined;
-		Responses.pool.query('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid], (err, results) => {
-			if (err) {
-				console.error(err);
-				return err;
-			}
 
-			// Data formatting so that its easier to use.
-			const instresults: [{ firstname: string, lastname: string, googleid: string, instructorid: string }] = JSON.parse(JSON.stringify(results));
-
-			if (instresults.length > 0) {
-				instructor = new Instructor({
-					firstname: instresults[0].firstname,
-					lastname: instresults[0].lastname,
-					googleid: instresults[0].googleid,
-					studentid: instresults[0].instructorid
-				});
-			}
+		const instresults = await Responses.pool.getrow('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid]).catch(e => {
+			console.error(e);
+			return e;
 		});
+
+		console.log(instresults);
+
+		if (instresults) {
+			instructor = new Instructor({
+				firstname: instresults[0].firstname,
+				lastname: instresults[0].lastname,
+				googleid: instresults[0].googleid,
+				studentid: instresults[0].instructorid
+			});
+		}
+
 		return instructor;
 	}
 
@@ -200,17 +198,19 @@ class Responses {
 	 * @param {string} googleid The googleid of the user.
 	 * @returns {Student | Instructor | Error | undefined} Returns a student, instructor, or error if there is one else, returns undefined.
 	 */
-	private static userExists(googleid: string): Instructor | Student | Error | undefined {
-		const instCheck: Instructor | Error | undefined = Responses.checkIfInstructor(googleid);
+	private static async userExists(googleid: string): Promise<Instructor | Student | Error | undefined> {
+		const instCheck: Instructor | Error | undefined = await Responses.checkIfInstructor(googleid);
 		if (instCheck instanceof Error) {
 			return instCheck;
 		}
-		if (instCheck !== undefined) {
+		if (instCheck) {
+			console.log('Reached instcheck: \n' + instCheck);
 			return instCheck;
 		}
 
-		const stucheck: Student | Error | undefined = Responses.checkIfStudent(googleid);
-		if (stucheck !== undefined) {
+		const stucheck: Student | Error | undefined = await Responses.checkIfStudent(googleid);
+		if (stucheck) {
+			console.log('Reached stucheck: \n' + stucheck);
 			return stucheck;
 		}
 

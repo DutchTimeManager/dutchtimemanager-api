@@ -1,5 +1,5 @@
 import express from 'express';
-import mysql from 'mysql2';
+import Db from 'mysql2-async';
 import { Responses } from './utils';
 import config from './config';
 
@@ -7,7 +7,7 @@ const app = express();
 const port = 4000;
 
 // Setup the database connection
-const pool: mysql.Pool = mysql.createPool({
+const pool: Db = new Db({
 	host: config.db.host,
 	user: config.db.user,
 	password: config.db.password,
@@ -35,6 +35,7 @@ app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
 
 // Start server
 app.listen(port, () => {
+	
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
