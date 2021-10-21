@@ -23,34 +23,34 @@ class Utils {
 			console.error(e);
 			return e;
 		});
-		if (student) {student = new Student(student);		}
+		if (student) { student = new Student(student); }
 		console.log(student);
 		return student;
 
 	}
 
 	/**
-     * Checks if the user is an instructor and returns a instructor object if there is one.
-     *
-     * @param {string} googleid The googleid of the user.
-     */
+	 * Checks if the user is an instructor and returns a instructor object if there is one.
+	 *
+	 * @param {string} googleid The googleid of the user.
+	 */
 	private static async checkIfInstructor(googleid: string): Promise<Instructor | Error | undefined> {
 		let instructor: Instructor = await Utils.pool.getrow<Instructor>('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid]).catch(e => {
 			console.error(e);
 			return e;
 		});
-		if (instructor) {instructor = new Instructor(instructor);		}
-		
+		if (instructor) { instructor = new Instructor(instructor); }
+
 		return instructor;
 
 	}
 
 	/**
-     * Checks if a user exists in the database based on googleID, returns type of user if there is one.
-     * 
-     * @param {string} googleid The googleid of the user.
-     * @returns {Student | Instructor | Error | undefined} Returns a student, instructor, or error if there is one else, returns undefined.
-     */
+	 * Checks if a user exists in the database based on googleID, returns type of user if there is one.
+	 * 
+	 * @param {string} googleid The googleid of the user.
+	 * @returns {Student | Instructor | Error | undefined} Returns a student, instructor, or error if there is one else, returns undefined.
+	 */
 	public static async userExists(googleid: string): Promise<Instructor | Student | Error | undefined> {
 		const instCheck: Instructor | Error | undefined = await Utils.checkIfInstructor(googleid);
 		if (instCheck instanceof Error) {
@@ -63,7 +63,7 @@ class Utils {
 		const stucheck: Student | Error | undefined = await Utils.checkIfStudent(googleid);
 		if (stucheck) {
 			console.log(stucheck);
-			
+
 			return stucheck;
 		}
 
@@ -71,31 +71,31 @@ class Utils {
 	}
 
 	/**
-     * Trys to register a user to the database.
-     * @param {RegistrationData} regdata The data needed to register an account.
-     * @returns {Promise<Payload | Error>} Returns a student, instructor, or error 
-     */
+	 * Trys to register a user to the database.
+	 * @param {RegistrationData} regdata The data needed to register an account.
+	 * @returns {Promise<Payload | Error>} Returns a student, instructor, or error 
+	 */
 	public static async registerUser(regdata: RegistrationData): Promise<Payload | Error> {
 
 		if (studentCheck(regdata.email)) {
 			return Utils.registerStudent(regdata);
 		}
 
-		// if (instructorCheck(regdata.email)) {
-		// 	return Utils.registerInstructor(regdata);
-		// }
+		if (instructorCheck(regdata.email)) {
+			return Utils.registerInstructor(regdata);
+		}
 
 		return Error('User is not eligible to register');
 	}
 
 	/**
-     * Registers a student to the database.
-     * @param {RegistrationData} regdata The registration data of the user.
-     * @returns {Promise<Payload>} Returns a student object.
-     */
+	 * Registers a student to the database.
+	 * @param {RegistrationData} regdata The registration data of the user.
+	 * @returns {Promise<Payload>} Returns a student object.
+	 */
 	private static async registerStudent(regdata: RegistrationData): Promise<Payload | Error> {
-		await this.pool.query('insert into studentdb (firstname, lastname, email, googleid) values (?, ?, ?, ?);', [regdata.firstname, regdata.lastname, regdata.email, regdata.googleid]);
-		
+		await this.pool.insert('insert into studentdb (firstname, lastname, email, googleid) values (?, ?, ?, ?);', [regdata.firstname, regdata.lastname, regdata.email, regdata.googleid]);
+
 		const studentid: string | undefined = await this.pool.getval<string>('select studentid from studentdb where googleid = ?;', [regdata.googleid]);
 
 		if (!studentid) {
@@ -109,15 +109,38 @@ class Utils {
 
 		return new Payload({
 			status: 'success',
-			data: new Student ({
+			data: new Student({
 				studentid: studentid,
 				firstname: regdata.firstname,
 				lastname: regdata.lastname,
 			}),
 			token: token
 		});
-		
+
 	}
+
+	private static async registerInstructor(regdata: RegistrationData): Promise<Payload | Error> {
+		await this.pool.insert('insert into instructordb (firstname, lastname, email, googleid) values (?, ?, ?, ?);', [regdata.firstname, regdata.lastname, regdata.email, regdata.googleid]);
+
+		const instructorid: string | undefined = await this.pool.getval<string>('select instructorid from instructordb where googleid = ?;', [regdata.googleid]);
+
+		if (!instructorid) {
+			return Error('Instructor was not registered');
+		}
+
+		const token = Utils.generateToken(instructorid);
+
+		return new Payload({
+			status: 'success',
+			data: new Instructor({
+				instructorid: instructorid,
+				firstname: regdata.firstname,
+				lastname: regdata.lastname,
+			}),
+			token: token
+		});
+	}
+
 
 	/**
 	 * Generates a token for a user.
@@ -134,8 +157,8 @@ class Utils {
 	/**
 	 * Logs an existing user in.
 	 * @param {Student | Instructor} user The user to log in.
+	 * @returns {Payload | Error} Returns a payload with the user and token or Error.
 	 */
-
 	public static loginUser(user: Student | Instructor): Payload | Error {
 		let id: string;
 
