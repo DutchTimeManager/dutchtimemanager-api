@@ -1,80 +1,136 @@
-// import temporal from '@js-temporal/polyfill';
+import { Temporal } from '@js-temporal/polyfill';
+import { version } from './server';
 
-interface Payload {
-	'status'?: string,
-	'time'?: string,
-	'version': Required<string>,
+class Payload {
+	public time = Temporal.Now.instant().toString();
+	public version = version;
+
+	public status?: string;
+	public data?: Student | Instructor;
+
+	private token?: string;
+
+	constructor(payload:{
+		status: string,
+		data?: Student | Instructor,
+		token?: string
+	}) {
+		this.status = payload.status;
+		this.data = payload.data;
+		this.token = payload.token;
+	}
+
+	public getToken(): string | undefined {
+		return this.token;
+	}
+
+	public static replacer(key: string, value: unknown): unknown|undefined {
+		if (key === 'token') {
+			return undefined;
+		}
+		return value;
+	}
+
+
 }
 
+
 interface Config {
-	db: {
+	db: Required<{
 		host: string,
 		user: string,
 		password: string,
 		database: string,
-	},
-	google: {
+	}>,
+	google: Required<{
 		clientID: string,
 		clientSecret: string,
 		redirURL: string,
-		apiKey: string,
-	},
+	}>,
+	info: Required<{
+		apiBase: string,
+		webappBase: string,
+	}>
 }
 
+// SRA gang
+
 class Student {
+	public readonly TYPE = 'user_student';
 	public firstname: string;
 	public lastname: string;
-	public googleid: string;
+	public googleid?: string;
 	public studentid: string;
-	public hashomeroom?: boolean;
-	public homeroomlocation?: string;
+	public email?: string;
+	public homeroomteacher?: string;
 
+	constructor(stu: {
+		firstname: string,
+		lastname: string,
+		studentid: string,
+		googleid?: string,
+		email?: string,
+		homeroomteacher?: string,
 
-	constructor(stu: Student) {
+	}) {
 		this.firstname = stu.firstname;
 		this.lastname = stu.lastname;
 		this.googleid = stu.googleid;
 		this.studentid = stu.studentid;
+		this.email = stu.email;
 		this.homeroomteacher = stu.homeroomteacher;
 	}
 }
 
 
-interface Student {
-	firstname: string,
-	lastname: string,
-	googleid: string,
-	studentid: string,
-	homeroomteacher?: string,
-}
 
 
 class Instructor {
+	public readonly TYPE = 'user_instructor';
 	public firstname: string;
 	public lastname: string;
-	public googleid: string;
-	public studentid: string;
+	public googleid?: string;
+	public instructorid: string;
 	public hashomeroom?: boolean;
 	public homeroomlocation?: string;
 
 
-	constructor(ins: Instructor) {
+	constructor(ins: {
+		firstname: string,
+		lastname: string,
+		googleid: string,
+		instructorid: string,
+		hashomeroom?: boolean,
+		homeroomlocation?: string,
+	}) {
 		this.firstname = ins.firstname;
 		this.lastname = ins.lastname;
 		this.googleid = ins.googleid;
-		this.studentid = ins.studentid;
+		this.instructorid = ins.instructorid;
 		this.hashomeroom = ins.hashomeroom;
 		this.homeroomlocation = ins.homeroomlocation;
 	}
 }
 
-interface Instructor {
-	firstname: string,
-	lastname: string,
-	googleid: string,
-	studentid: string,
-	hashomeroom?: boolean,
-	homeroomlocation?: string,
+class RegistrationData {
+	public email: string;
+	public googleid: string;
+	public firstname: string;
+	public lastname: string;
+
+	constructor(reg: {
+		email: string,
+		googleid: string,
+		firstname: string,
+		lastname: string}
+	) {
+		this.email = reg.email;
+		this.googleid = reg.googleid;
+		this.firstname = reg.firstname;
+		this.lastname = reg.lastname;
+	}
+
 }
 
-export { Payload, Config, Student, Instructor };
+
+export { Payload, Config, Student, Instructor, RegistrationData };

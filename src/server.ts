@@ -1,10 +1,12 @@
 import express from 'express';
 import Db from 'mysql2-async';
-import { Responses } from './utils';
-import config from './config';
+import Responses from './responses';
+import Utils from './utils';
+import { config } from './config';
 
 const app = express();
 const port = 4000;
+const version = '0.0.0';
 
 // Setup the database connection
 const pool: Db = new Db({
@@ -17,11 +19,14 @@ const pool: Db = new Db({
 	queueLimit: 0,
 });
 
-Responses.setup(pool, {
+Responses.setup({
 	id: config.google.clientID,
 	secret: config.google.clientSecret,
 	redirURL: config.google.redirURL,
 });
+
+Utils.setup(pool);
+
 
 // Status check of API server
 app.get('/', (req, res) => Responses.statusCheck(req, res));
@@ -39,4 +44,4 @@ app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
-export { config };
+export { version };
