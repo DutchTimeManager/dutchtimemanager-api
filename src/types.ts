@@ -98,7 +98,7 @@ class Instructor {
 	constructor(ins: {
 		firstname: string,
 		lastname: string,
-		googleid: string,
+		googleid?: string,
 		instructorid: string,
 		hashomeroom?: boolean,
 		homeroomlocation?: string,

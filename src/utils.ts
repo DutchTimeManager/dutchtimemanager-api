@@ -19,10 +19,14 @@ class Utils {
 	 * @param {string} googleid The googleid of the user.
 	 */
 	private static async checkIfStudent(googleid: string): Promise<Student | Error | undefined> {
-		return await Utils.pool.getrow<Student>('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [googleid]).catch(e => {
+		let student: Student = await Utils.pool.getrow<Student>('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [googleid]).catch(e => {
 			console.error(e);
 			return e;
 		});
+		if (student) {student = new Student(student);		}
+		console.log(student);
+		return student;
+
 	}
 
 	/**
@@ -31,10 +35,14 @@ class Utils {
      * @param {string} googleid The googleid of the user.
      */
 	private static async checkIfInstructor(googleid: string): Promise<Instructor | Error | undefined> {
-		return await Utils.pool.getrow<Instructor>('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid]).catch(e => {
+		let instructor: Instructor = await Utils.pool.getrow<Instructor>('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid]).catch(e => {
 			console.error(e);
 			return e;
 		});
+		if (instructor) {instructor = new Instructor(instructor);		}
+		
+		return instructor;
+
 	}
 
 	/**
@@ -54,6 +62,8 @@ class Utils {
 
 		const stucheck: Student | Error | undefined = await Utils.checkIfStudent(googleid);
 		if (stucheck) {
+			console.log(stucheck);
+			
 			return stucheck;
 		}
 
@@ -121,6 +131,11 @@ class Utils {
 		return token;
 	}
 
+	/**
+	 * Logs an existing user in.
+	 * @param {Student | Instructor} user The user to log in.
+	 */
+
 	public static loginUser(user: Student | Instructor): Payload | Error {
 		let id: string;
 
@@ -140,6 +155,8 @@ class Utils {
 			token: token
 		});
 	}
+
+
 
 }
 

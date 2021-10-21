@@ -97,7 +97,7 @@ class Responses {
 	}
 	
 	private static tokenRedir(token: string, res: express.Response): void {
-		res.redirect(`${config.info.apiBase}/?t=${token}`);
+		res.redirect(`${config.info.webappBase}/?t=${token}`);
 	}
 
 	/**
@@ -109,7 +109,6 @@ class Responses {
 		let code = '';
 		if (req.query.code !== undefined) { code = req.query.code.toString(); }
 
-		console.log(code);
 		if (code !== '') {
 			Responses.OAuth2Client.getToken(code.toString(), (err, tokens) => {
 				if (err) {
@@ -138,6 +137,8 @@ class Responses {
 							let gid = '';
 							if (response.data.resourceName) {
 								gid = response.data.resourceName?.substring(7);
+								console.log(gid);
+								
 							} else { return Responses.internalError(req, res, new Error('No Google ID')); }
 							const user = await utils.userExists(gid);
 
@@ -146,7 +147,7 @@ class Responses {
 
 							if (user instanceof Student || user instanceof Instructor) {
 
-								console.log('student' + user);
+								console.log('Logging in');
 								const loggedin = Utils.loginUser(user);
 
 								if (loggedin instanceof Error) {
