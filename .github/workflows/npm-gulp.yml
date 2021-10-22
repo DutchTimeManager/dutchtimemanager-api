@@ -24,7 +24,7 @@ jobs:
 
     - name: Build
       run: |
-        npm cide --dev
+        npm ci --dev
         gulp
         
     - name: Upload a Build Artifact
