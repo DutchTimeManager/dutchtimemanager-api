@@ -1,0 +1,3 @@
+# Flexible Time Scedule
+
+==BETA SOFTWARE AND UNDOCUMENTED, CHECK BACK LATER==
