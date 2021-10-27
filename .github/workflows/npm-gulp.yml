@@ -26,6 +26,11 @@ jobs:
       run: |
         npm ci --dev
         gulp
+      
+    - name: Package
+      run: |
+        cp package.json package-lock.json LICENCE README.md out/
+        rm out/config.js
         
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.4
@@ -33,7 +38,7 @@ jobs:
         # Artifact name
         name: buildout # optional, default is artifact
         # A file, directory or wildcard pattern that describes what to upload
-        path: /out/
+        path: out/
         # The desired behavior if no files are found using the provided path.
         if-no-files-found: warn # optional, default is warn
         # Duration after which artifact will expire in days. 0 means using default retention. Minimum 1 day. Maximum 90 days unless changed from the repository settings page.
