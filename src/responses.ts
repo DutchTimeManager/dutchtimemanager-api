@@ -4,7 +4,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
 import { Instructor, Payload, RegistrationData, Student } from './types';
 import utils from './utils';
-import { config } from './config';
+import { config } from './server';
 import Utils from './utils';
 
 class Responses {

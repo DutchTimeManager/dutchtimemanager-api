@@ -1,0 +1,20 @@
+db:
+  host: db.example.net
+  user: dtm
+  password: this is a password
+  database: dutchtimemanager
+
+  google:
+  clientID: abcdef6hijklmnop.apps.googleusercontent.com
+  clientSecret: ThisISA_Secret
+
+info:
+  apiBase: https://api.example.net        # Url where the api is being hosted
+  webappBase: https://app.example.net     # Url where the web app will be hosted
+  studentCheck: /^(\d\d-).*@example.edu/  # Regex matching student emails
+  instructorCheck: /^(\w+)@example.edu/   # Regex matching instructor emails
+
+server:
+  port: 4000
+  
+

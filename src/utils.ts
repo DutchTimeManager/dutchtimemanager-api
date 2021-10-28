@@ -1,6 +1,6 @@
 import Db from 'mysql2-async';
 import { Student, Instructor, Payload, RegistrationData } from './types';
-import { studentCheck, instructorCheck } from './config';
+import { config } from './server';
 import crypto from 'crypto';
 import { Temporal } from '@js-temporal/polyfill';
 
@@ -77,11 +77,11 @@ class Utils {
 	 */
 	public static async registerUser(regdata: RegistrationData): Promise<Payload | Error> {
 
-		if (studentCheck(regdata.email)) {
+		if (regdata.email.match(RegExp(config.info.studentCheck))) {
 			return Utils.registerStudent(regdata);
 		}
 
-		if (instructorCheck(regdata.email)) {
+		if (regdata.email.match(RegExp(config.info.instructorCheck))) {
 			return Utils.registerInstructor(regdata);
 		}
 

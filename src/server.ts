@@ -2,11 +2,22 @@ import express from 'express';
 import Db from 'mysql2-async';
 import Responses from './responses';
 import Utils from './utils';
-import { config } from './config';
+// import { config } from './config';
+import YAML from 'js-yaml';
+import fs from 'fs';
+import { Config } from './types';
+
+
+// Load config
+const config: Config = YAML.load(fs.readFileSync('./config.yaml', 'utf8'), {schema: YAML.CORE_SCHEMA}) as Config;
 
 const app = express();
-const port = 4000;
-const version = '0.0.0';
+const port = config.server.port;
+const version = '0.0.1';
+
+
+
+
 
 // Setup the database connection
 const pool: Db = new Db({
@@ -44,4 +55,4 @@ app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`);
 });
 
-export { version };
+export { version, config};
