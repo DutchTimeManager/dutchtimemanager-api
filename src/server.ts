@@ -2,21 +2,38 @@ import express from 'express';
 import Db from 'mysql2-async';
 import Responses from './responses';
 import Utils from './utils';
-// import { config } from './config';
 import YAML from 'js-yaml';
 import fs from 'fs';
 import { Config } from './types';
+import yargs from 'yargs';
+
+// Load package.json
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+const version = packageJson.version;
+
+// Parse command line arguments
+const argv = yargs(process.argv.slice(2)).options({
+	'config': {
+		alias: 'c', 
+		type: 'string',
+		default: 'config.yaml',
+		normalize: true,
+		description: 'Path to config file'
+	},
+	'help': {
+		alias: 'h',
+		type: 'boolean',
+		description: 'Print help and exit',
+		help: true
+	}
+}).parseSync();
 
 
 // Load config
-const config: Config = YAML.load(fs.readFileSync('./config.yaml', 'utf8'), {schema: YAML.CORE_SCHEMA}) as Config;
-
+console.info('Loading config from ' + argv['config'] );
+const config: Config = YAML.load(fs.readFileSync(argv['config'], 'utf8'), {schema: YAML.CORE_SCHEMA}) as Config;
 const app = express();
 const port = config.server.port;
-const version = '0.0.1';
-
-
-
 
 
 // Setup the database connection
@@ -30,12 +47,7 @@ const pool: Db = new Db({
 	queueLimit: 0,
 });
 
-Responses.setup({
-	id: config.google.clientID,
-	secret: config.google.clientSecret,
-	redirURL: config.google.redirURL,
-});
-
+Responses.setup();
 Utils.setup(pool);
 
 
