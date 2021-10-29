@@ -48,7 +48,6 @@ interface Config {
 	google: Required<{
 		clientID: string,
 		clientSecret: string,
-		redirURL: string,
 	}>,
 	info: {
 		apiBase: string,

@@ -18,7 +18,7 @@ class Responses {
 		Responses.OAuth2Client = new google.auth.OAuth2(
 			config.google.clientID,
 			config.google.clientSecret,
-			config.google.redirURL
+			config.info.apiBase + '/oauthlogin/catch'
 		);
 	}
 		
