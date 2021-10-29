@@ -2,8 +2,8 @@ import { Temporal } from '@js-temporal/polyfill';
 import { version } from './server';
 
 class Payload {
-	public time = Temporal.Now.instant().toString();
-	public version = version;
+	public time: string = Temporal.Now.instant().toString();
+	public version: string = version;
 
 	public status?: string;
 	public data?: Student | Instructor;
@@ -36,6 +36,9 @@ class Payload {
 
 
 interface Config {
+    server: {
+        port: number,
+    };
 	db: Required<{
 		host: string,
 		user: string,
@@ -47,10 +50,12 @@ interface Config {
 		clientSecret: string,
 		redirURL: string,
 	}>,
-	info: Required<{
+	info: {
 		apiBase: string,
 		webappBase: string,
-	}>
+        studentCheck: string,
+        instructorCheck: string,
+	}
 }
 
 // SRA gang

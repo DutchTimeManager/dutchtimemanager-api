@@ -4,7 +4,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
 import { Instructor, Payload, RegistrationData, Student } from './types';
 import utils from './utils';
-import { config } from './config';
+import { config } from './server';
 import Utils from './utils';
 
 class Responses {
@@ -14,15 +14,15 @@ class Responses {
 	 * Initialize the database connection pool.
 	 * @param {Db} pool - The database connection pool.
 	 */
-	public static setup(googlecredentials: {
-		id: string, secret: string, redirURL: string
-	}): void {
+	public static setup(): void {
 		Responses.OAuth2Client = new google.auth.OAuth2(
-			googlecredentials.id,
-			googlecredentials.secret,
-			googlecredentials.redirURL,
+			config.google.clientID,
+			config.google.clientSecret,
+			config.google.redirURL
 		);
 	}
+		
+
 
 	/**
 	 * Respond's 400 Bad Request with the path that was requested.

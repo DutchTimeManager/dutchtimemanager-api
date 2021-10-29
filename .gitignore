@@ -5,4 +5,4 @@ out/
 node_modules/
 
 # Config with sensitive information.
-src/config.ts
+config.yaml
