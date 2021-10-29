@@ -27,6 +27,10 @@ jobs:
           npm ci --dev
           gulp
 
+      - name: Prepare for packageing
+        run: |
+          rm -rf node_modules/
+
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.4
         with:
