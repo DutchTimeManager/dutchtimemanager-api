@@ -194,12 +194,13 @@ class Utils {
 		const promises = queries.map(query => Utils.pool.getrow<Student | Instructor>(query, [id]));
 
 		for (const promise of promises) {
-			console.log(promise);
 			const result = await promise;
-			console.log(result);
-			
 			if (result !== undefined && result.id) {
-				return result;
+				if (result.email.match(RegExp(config.info.studentCheck)) !== null) {
+					return new Student(result);
+				} else {
+					return new Instructor(result);
+				}
 			}
 		}
 
