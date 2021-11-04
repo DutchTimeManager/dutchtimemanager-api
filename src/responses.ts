@@ -10,7 +10,7 @@ import Utils from './utils';
 class Responses {
 	private static OAuth2Client: OAuth2Client;
 
-	/**
+	/**, 
 	 * Initialize the database connection pool.
 	 * @param {Db} pool - The database connection pool.
 	 */
@@ -21,8 +21,6 @@ class Responses {
 			config.info.apiBase + '/oauthlogin/catch'
 		);
 	}
-		
-
 
 	/**
 	 * Respond's 400 Bad Request with the path that was requested.
@@ -96,6 +94,11 @@ class Responses {
 		res.status(200).send(JSON.stringify(payload, Payload.replacer));
 	}
 	
+	/**
+     * 
+     * @param token {string} Token to be verified.
+     * @param res 
+     */
 	private static tokenRedir(token: string, res: express.Response): void {
 		res.redirect(`${config.info.webappBase}/?t=${token}`);
 	}
@@ -205,9 +208,27 @@ class Responses {
 		}
 	}
 
-	
+	/**
+     * Get user from id.
+     * @param {express.Request} req
+     * @param {express.Response} res
+     */
+	public static async getUserFromId(req: express.Request, res: express.Response): Promise<void> {
+		const id: string = req.query.id.toString();
+		console.log(id);
+        
+		const user = await Utils.getUserFromID(id);
+		if (user instanceof Error) {
+			console.error(user);
+			return Responses.internalError(req, res, user);
+		}
+		const payload: Payload = new Payload({
+			status: 'OK',
+			data: user,
+		});
 
-
+		return this.sendPayload(payload, req, res );
+	}
 }
 
 

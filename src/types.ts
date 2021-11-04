@@ -1,40 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 import { version } from './server';
 
-class Payload {
-	public time: string = Temporal.Now.instant().toString();
-	public version: string = version;
-
-	public status?: string;
-	public data?: Student | Instructor;
-
-	private token?: string;
-
-	constructor(payload:{
-		status: string,
-		data?: Student | Instructor,
-		token?: string
-	}) {
-		this.status = payload.status;
-		this.data = payload.data;
-		this.token = payload.token;
-	}
-
-	public getToken(): string | undefined {
-		return this.token;
-	}
-
-	public static replacer(key: string, value: unknown): unknown|undefined {
-		if (key === 'token') {
-			return undefined;
-		}
-		return value;
-	}
-
-
-}
-
-
 interface Config {
     server: {
         port: number,
@@ -57,31 +23,97 @@ interface Config {
 	}
 }
 
-// SRA gang
+class Event {
+	// User info
+	public teachid: string;
+	public location: string;
+	public maxStudents: number;
+	public comments?: string;
+	public name: string;
 
-class Student {
-	public readonly TYPE = 'user_student';
+	// Backend info
+	public id?: string;
+
+	constructor(eventdata: {
+		teachid: string,
+		location: string,
+		maxStudents: number,
+		comments?: string,
+		name: string,
+		id?: string,
+	}) {
+
+		if (eventdata.id.length != 36) {
+			throw new Error('Invalid event ID');
+		}
+
+		if (eventdata.teachid.length != 36) {
+			throw new Error('Invalid instructor ID');
+		}
+
+		if (this.maxStudents < 0 || this.maxStudents > 0x7FFFFFFF) {
+			throw new Error('Invalid maxStudents');
+		}
+
+		if (eventdata.name.length > 128) {
+			throw new Error('Invalid name');
+		}
+
+		if (eventdata.location.length > 128) {
+			throw new Error('Invalid location');
+		}
+
+		if (eventdata.comments && eventdata.comments.length > 500) {
+			throw new Error('Invalid comments');
+		}
+
+		this.teachid = eventdata.teachid;
+		this.location = eventdata.location;
+		this.maxStudents = eventdata.maxStudents;
+		this.comments = eventdata.comments;
+		this.name = eventdata.name;
+		this.id = eventdata.id;
+	}
+
+
+}
+
+class User {
+	public id: string;
 	public firstname: string;
 	public lastname: string;
 	public googleid?: string;
-	public studentid: string;
 	public email?: string;
+    
+	constructor(userdata: {
+        id: string,
+        firstname: string,
+        lastname: string,
+        googleid?: string,
+        email?: string,
+    }) {
+		this.id = userdata.id;
+		this.firstname = userdata.firstname;
+		this.lastname = userdata.lastname;
+		this.googleid = userdata.googleid;
+		this.email = userdata.email;
+	}
+}
+
+class Student extends User {
+	public readonly TYPE: string = 'user_student';
 	public homeroomteacher?: string;
 
 	constructor(stu: {
 		firstname: string,
 		lastname: string,
-		studentid: string,
+		id: string,
 		googleid?: string,
 		email?: string,
 		homeroomteacher?: string,
 
 	}) {
-		this.firstname = stu.firstname;
-		this.lastname = stu.lastname;
-		this.googleid = stu.googleid;
-		this.studentid = stu.studentid;
-		this.email = stu.email;
+		super({ firstname: stu.firstname, lastname: stu.lastname, googleid: stu.googleid, email: stu.email, id: stu.id });
 		this.homeroomteacher = stu.homeroomteacher;
 	}
 }
@@ -89,12 +121,8 @@ class Student {
 
 
 
-class Instructor {
-	public readonly TYPE = 'user_instructor';
-	public firstname: string;
-	public lastname: string;
-	public googleid?: string;
-	public instructorid: string;
+class Instructor extends User {
+	public readonly TYPE: string = 'user_instructor';
 	public hashomeroom?: boolean;
 	public homeroomlocation?: string;
 
@@ -103,14 +131,11 @@ class Instructor {
 		firstname: string,
 		lastname: string,
 		googleid?: string,
-		instructorid: string,
+		id: string,
 		hashomeroom?: boolean,
 		homeroomlocation?: string,
 	}) {
-		this.firstname = ins.firstname;
-		this.lastname = ins.lastname;
-		this.googleid = ins.googleid;
-		this.instructorid = ins.instructorid;
+		super({ firstname: ins.firstname, lastname: ins.lastname, googleid: ins.googleid, id: ins.id });
 		this.hashomeroom = ins.hashomeroom;
 		this.homeroomlocation = ins.homeroomlocation;
 	}
@@ -136,5 +161,34 @@ class RegistrationData {
 
 }
 
+class Payload {
+	public time: string = Temporal.Now.instant().toString();
+	public version: string = version;
+	public status?: string;
+	public data?: Student | Instructor;
+	private token?: string;
 
-export { Payload, Config, Student, Instructor, RegistrationData };
+	constructor(payload:{
+		status: string,
+		data?: Student | Instructor,
+		token?: string
+	}) {
+		this.status = payload.status;
+		this.data = payload.data;
+		this.token = payload.token;
+	}
+
+	public getToken(): string | undefined {
+		return this.token;
+	}
+
+	public static replacer(key: string, value: unknown): unknown|undefined {
+		if (key === 'token') {
+			return undefined;
+		}
+		return value;
+	}
+}
+
+
+export { Payload, Config, Student, Instructor, RegistrationData, Event };

@@ -58,6 +58,9 @@ app.get('/', (req, res) => Responses.statusCheck(req, res));
 app.get('/oauthlogin/start', (req, res) => Responses.startOAuth2(req, res));
 app.get('/oauthlogin/catch', (req, res) => Responses.catchOAuth2(req, res));
 
+// Test endpointy
+app.get('/test', (req, res) => Responses.getUserFromId(req, res));
+
 // Catch all other requests and responds 404
 app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
 

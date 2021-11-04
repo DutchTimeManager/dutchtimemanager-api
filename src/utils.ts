@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { Temporal } from '@js-temporal/polyfill';
 
 
+
 class Utils {
 	private static pool: Db;
 
@@ -19,7 +20,7 @@ class Utils {
 	 * @param {string} googleid The googleid of the user.
 	 */
 	private static async checkIfStudent(googleid: string): Promise<Student | Error | undefined> {
-		let student: Student = await Utils.pool.getrow<Student>('select firstname, lastname, googleid, studentid from studentdb where `googleid` = ?;', [googleid]).catch(e => {
+		let student: Student = await Utils.pool.getrow<Student>('select firstname, lastname, googleid, `id` from studentdb where `googleid` = ?;', [googleid]).catch(e => {
 			console.error(e);
 			return e;
 		});
@@ -35,7 +36,7 @@ class Utils {
 	 * @param {string} googleid The googleid of the user.
 	 */
 	private static async checkIfInstructor(googleid: string): Promise<Instructor | Error | undefined> {
-		let instructor: Instructor = await Utils.pool.getrow<Instructor>('select firstname, lastname, googleid, instructorid from instructordb where `googleid` = ?;', [googleid]).catch(e => {
+		let instructor: Instructor = await Utils.pool.getrow<Instructor>('select firstname, lastname, googleid, `id` from instructordb where `googleid` = ?;', [googleid]).catch(e => {
 			console.error(e);
 			return e;
 		});
@@ -96,7 +97,7 @@ class Utils {
 	private static async registerStudent(regdata: RegistrationData): Promise<Payload | Error> {
 		await this.pool.insert('insert into studentdb (firstname, lastname, email, googleid) values (?, ?, ?, ?);', [regdata.firstname, regdata.lastname, regdata.email, regdata.googleid]);
 
-		const studentid: string | undefined = await this.pool.getval<string>('select studentid from studentdb where googleid = ?;', [regdata.googleid]);
+		const studentid: string | undefined = await this.pool.getval<string>('select `id` from studentdb where googleid = ?;', [regdata.googleid]);
 
 		if (!studentid) {
 			return Error('Student was not registered');
@@ -110,7 +111,7 @@ class Utils {
 		return new Payload({
 			status: 'success',
 			data: new Student({
-				studentid: studentid,
+				id: studentid,
 				firstname: regdata.firstname,
 				lastname: regdata.lastname,
 			}),
@@ -122,7 +123,7 @@ class Utils {
 	private static async registerInstructor(regdata: RegistrationData): Promise<Payload | Error> {
 		await this.pool.insert('insert into instructordb (firstname, lastname, email, googleid) values (?, ?, ?, ?);', [regdata.firstname, regdata.lastname, regdata.email, regdata.googleid]);
 
-		const instructorid: string | undefined = await this.pool.getval<string>('select instructorid from instructordb where googleid = ?;', [regdata.googleid]);
+		const instructorid: string | undefined = await this.pool.getval<string>('select `id` from instructordb where googleid = ?;', [regdata.googleid]);
 
 		if (!instructorid) {
 			return Error('Instructor was not registered');
@@ -133,7 +134,7 @@ class Utils {
 		return new Payload({
 			status: 'success',
 			data: new Instructor({
-				instructorid: instructorid,
+				id: instructorid,
 				firstname: regdata.firstname,
 				lastname: regdata.lastname,
 			}),
@@ -163,9 +164,9 @@ class Utils {
 		let id: string;
 
 		if (user instanceof Student) {
-			id = user.studentid;
+			id = user.id;
 		} else if (user instanceof Instructor) {
-			id = user.instructorid;
+			id = user.id;
 		} else {
 			return Error('User is not a student or instructor');
 		}
@@ -179,7 +180,31 @@ class Utils {
 		});
 	}
 
+	/**
+	 * Returns a user based on an id.
+	 * @param {string} id The id of the user.
+	 * @returns {Student | Instructor | Error} Returns a student, instructor, or error if there is one else, returns undefined.
+	 */
+	public static async getUserFromID(id: string): Promise<Student | Instructor | Error | undefined> {
+		const queries = [
+			'SELECT `id`, firstname, lastname, email, hashomeroom, homeroomlocation FROM instructordb WHERE `id` = ?;',
+			'SELECT `id`, firstname, lastname, email, homeroomteacher FROM studentdb WHERE `id` = ?;'
+		];
 
+		const promises = queries.map(query => Utils.pool.getrow<Student | Instructor>(query, [id]));
+
+		for (const promise of promises) {
+			console.log(promise);
+			const result = await promise;
+			console.log(result);
+			
+			if (result !== undefined && result.id) {
+				return result;
+			}
+		}
+
+		return;
+	} 
 
 }
 

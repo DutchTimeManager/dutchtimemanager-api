@@ -1,10 +1,10 @@
 {
     "name": "dutchtimemanager-api",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Private API for the dutchtime manager app.",
     "main": "out/server.js",
     "scripts": {
-        "start": "gulp; node out/server.js",
+        "start": "gulp && node out/server.js",
         "build": "gulp",
         "no-build": "node out/server.js"
     },
