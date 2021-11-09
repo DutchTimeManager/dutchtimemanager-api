@@ -1,14 +1,25 @@
 import Db from 'mysql2-async';
-import { Student, Instructor, Payload, RegistrationData } from './types';
+import { Student, Instructor, Payload, RegistrationData, User } from './types';
 import { config } from './server';
 import crypto from 'crypto';
 import { Temporal } from '@js-temporal/polyfill';
 
-
-
 class Utils {
+	/**
+	 * Database connection to be used by the api.
+	 * 
+	 * @remarks
+	 * Settings are defined in the config file.
+	 */
 	private static pool: Db;
 
+	/**
+	 * 
+	 * @param pool The database connection to be used.
+	 * 
+	 * @remarks
+	 * Created inside of the server.ts file and passed to here.
+	 */
 	public static setup(pool: Db): void {
 		this.pool = pool;
 	}
@@ -157,22 +168,12 @@ class Utils {
 
 	/**
 	 * Logs an existing user in.
-	 * @param {Student | Instructor} user The user to log in.
+	 * @param {User} user The user to log in.
 	 * @returns {Payload | Error} Returns a payload with the user and token or Error.
 	 */
-	public static loginUser(user: Student | Instructor): Payload | Error {
-		let id: string;
-
-		if (user instanceof Student) {
-			id = user.id;
-		} else if (user instanceof Instructor) {
-			id = user.id;
-		} else {
-			return Error('User is not a student or instructor');
-		}
-
-
-		const token = Utils.generateToken(id);
+	public static loginUser(user: User): Payload | Error {
+		const token = Utils.generateToken(user.id);
+		this.pool.insert('insert into tokendb(token, `id`) values (?,?);', [token, user.id]);
 		return new Payload({
 			status: 'success',
 			data: user,
@@ -196,7 +197,7 @@ class Utils {
 		for (const promise of promises) {
 			const result = await promise;
 			if (result !== undefined && result.id) {
-				if (result.email.match(RegExp(config.info.studentCheck)) !== null) {
+				if (result.email.match(RegExp(config.info.studentCheck)) !== null) {					
 					return new Student(result);
 				} else {
 					return new Instructor(result);
@@ -206,6 +207,15 @@ class Utils {
 
 		return;
 	} 
+
+	/**
+	 * Performs routine maintenance and cleanup on the database.
+	 */ 
+	public static async databaseMaintenance(): Promise<void> {
+		return await this.pool.transaction(async (transaction) => {
+			await transaction.delete('delete from tokendb where TIMESTAMPDIFF(MINUTE, lastused, NOW()) > 60');
+		});
+	}
 
 }
 

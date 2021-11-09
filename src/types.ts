@@ -78,7 +78,11 @@ class Event {
 
 }
 
+/**
+ * A class representing both types of users.
+ */
 class User {
+	public readonly TYPE: string = 'user_generic';
 	public id: string;
 	public firstname: string;
 	public lastname: string;
@@ -165,12 +169,12 @@ class Payload {
 	public time: string = Temporal.Now.instant().toString();
 	public version: string = version;
 	public status?: string;
-	public data?: Student | Instructor;
+	public data?: User;
 	private token?: string;
 
 	constructor(payload:{
 		status: string,
-		data?: Student | Instructor,
+		data?: User,
 		token?: string
 	}) {
 		this.status = payload.status;
@@ -191,4 +195,4 @@ class Payload {
 }
 
 
-export { Payload, Config, Student, Instructor, RegistrationData, Event };
+export { Payload, Config, User, Student, Instructor, RegistrationData, Event };
