@@ -6,3 +6,6 @@ node_modules/
 
 # Config with sensitive information.
 config.yaml
+
+# Built docs
+docs/api/
