@@ -6,6 +6,7 @@ import YAML from 'js-yaml';
 import fs from 'fs';
 import { Config } from './types';
 import yargs from 'yargs';
+import Bree from 'bree';
 
 // Load package.json
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
@@ -32,9 +33,6 @@ const argv = yargs(process.argv.slice(2)).options({
 // Load config
 console.info('Loading config from ' + argv['config'] );
 const config: Config = YAML.load(fs.readFileSync(argv['config'], 'utf8'), {schema: YAML.CORE_SCHEMA}) as Config;
-const app = express();
-const port = config.server.port;
-
 
 // Setup the database connection
 const pool: Db = new Db({
@@ -49,6 +47,17 @@ const pool: Db = new Db({
 
 Responses.setup();
 Utils.setup(pool);
+
+// Setup maintainance routines
+const bree = new Bree({
+	root: 'out/jobs/',
+
+});
+
+bree.start();
+
+// Set up express
+const app = express();
 
 
 // Status check of API server
@@ -65,9 +74,9 @@ app.get('/test', (req, res) => Responses.getUserFromId(req, res));
 app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
 
 // Start server
-app.listen(port, () => {
+app.listen(config.server.port, () => {
 	
-	console.log(`Example app listening at http://localhost:${port}`);
+	console.log(`Example app listening at http://localhost:${config.server.port}`);
 });
 
-export { version, config};
+export { version, config, bree};

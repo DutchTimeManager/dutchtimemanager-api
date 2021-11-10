@@ -11,8 +11,7 @@ class Responses {
 	private static OAuth2Client: OAuth2Client;
 
 	/**, 
-	 * Initialize the database connection pool.
-	 * @param {Db} pool - The database connection pool.
+	 * Initialize the Oauth2 client to google.
 	 */
 	public static setup(): void {
 		Responses.OAuth2Client = new google.auth.OAuth2(

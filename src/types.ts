@@ -1,9 +1,16 @@
 import { Temporal } from '@js-temporal/polyfill';
 import { version } from './server';
 
+/**
+ * Interface for the configuration.
+ */
 interface Config {
     server: {
         port: number,
+		maintainance: {
+			enabled: boolean,
+			db_cron: string
+			}
     };
 	db: Required<{
 		host: string,
@@ -23,6 +30,9 @@ interface Config {
 	}
 }
 
+/**
+ * Contains event objects
+ */
 class Event {
 	// User info
 	public teachid: string;

@@ -4,7 +4,7 @@ db:
   password: this is a password
   database: dutchtimemanager
 
-  google:
+google:
   clientID: abcdef6hijklmnop.apps.googleusercontent.com
   clientSecret: ThisISA_Secret
 
@@ -16,5 +16,7 @@ info:
 
 server:
   port: 4000
-  
-
+  maintainence:
+    enabled: true         # Turns on or off automatic maintainence, May lead to full hard drives if left off for too long
+    db_cron: 23 1 * * *   # cron syntax of when the database should be cleaned,
+                          # recommended to be a time that no users would be using the system every day
