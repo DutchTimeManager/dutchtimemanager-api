@@ -14,7 +14,7 @@
     "private": true,
     "dependencies": {
         "@js-temporal/polyfill": "^0.2.0",
-        "bree": "^6.5.0",
+        "bree": "^7.1.0",
         "express": "^4.17.1",
         "googleapis": "^91.0.0",
         "googleapis-common": "^5.0.5",
