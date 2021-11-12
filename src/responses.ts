@@ -2,22 +2,20 @@
 import express from 'express';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
-import { Instructor, Payload, RegistrationData, Student } from './types';
-import utils from './utils';
-import { config } from './server';
-import Utils from './utils';
+import { Instructor, Payload, RegistrationData, Student } from './types.js';
+import Utils from './utils.js';
 
 class Responses {
 	private static OAuth2Client: OAuth2Client;
 
-	/**, 
+	/**
 	 * Initialize the Oauth2 client to google.
 	 */
 	public static setup(): void {
 		Responses.OAuth2Client = new google.auth.OAuth2(
-			config.google.clientID,
-			config.google.clientSecret,
-			config.info.apiBase + '/oauthlogin/catch'
+			Utils.config.google.clientID,
+			Utils.config.google.clientSecret,
+			Utils.config.info.apiBase + '/oauthlogin/catch'
 		);
 	}
 
@@ -87,7 +85,7 @@ class Responses {
 	private static sendPayload(payload: Payload, req: express.Request, res: express.Response): void {
 		res.header('Content-Type', 'application/json');
 		if (payload.getToken()) {
-			res.cookie('token', payload.getToken(), { maxAge: 3600000, domain: config.info.apiBase });
+			res.cookie('token', payload.getToken(), { maxAge: 3600000, domain: Utils.config.info.apiBase });
 		}
 
 		res.status(200).send(JSON.stringify(payload, Payload.replacer));
@@ -99,7 +97,7 @@ class Responses {
      * @param res 
      */
 	private static tokenRedir(token: string, res: express.Response): void {
-		res.redirect(`${config.info.webappBase}/?t=${token}`);
+		res.redirect(`${Utils.config.info.webappBase}/?t=${token}`);
 	}
 
 	/**
@@ -142,7 +140,7 @@ class Responses {
 								console.log(gid);
 								
 							} else { return Responses.internalError(req, res, new Error('No Google ID')); }
-							const user = await utils.userExists(gid);
+							const user = await Utils.userExists(gid);
 
 							console.log(user);
 
@@ -183,7 +181,7 @@ class Responses {
 										lastname: lastname
 									};
 
-									const regpayload = await utils.registerUser(regData);
+									const regpayload = await Utils.registerUser(regData);
 
 									if (regpayload instanceof Error) {
 										console.error(regpayload);
@@ -229,8 +227,5 @@ class Responses {
 		return this.sendPayload(payload, req, res );
 	}
 }
-
-
-
 
 export default Responses;

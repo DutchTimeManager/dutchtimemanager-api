@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill';
-import { version } from './server';
+import { version } from './server.js';
 
 /**
  * Interface for the configuration.

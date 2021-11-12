@@ -1,12 +1,17 @@
+// console.log('Before imports');
+
 import express from 'express';
 import Db from 'mysql2-async';
-import Responses from './responses';
-import Utils from './utils';
-import YAML from 'js-yaml';
+import Responses from './responses.js';
+import Utils from './utils.js';
 import fs from 'fs';
-import { Config } from './types';
+import path from 'path';
 import yargs from 'yargs';
-import Bree from 'bree';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Polyfill for __dirname
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load package.json
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
@@ -29,10 +34,10 @@ const argv = yargs(process.argv.slice(2)).options({
 	}
 }).parseSync();
 
-
 // Load config
 console.info('Loading config from ' + argv['config'] );
-const config: Config = YAML.load(fs.readFileSync(argv['config'], 'utf8'), {schema: YAML.CORE_SCHEMA}) as Config;
+const config = await Utils.loadConfig(argv['config']);
+// console.log(config);
 
 // Setup the database connection
 const pool: Db = new Db({
@@ -47,14 +52,6 @@ const pool: Db = new Db({
 
 Responses.setup();
 Utils.setup(pool);
-
-// Setup maintainance routines
-const bree = new Bree({
-	root: 'out/jobs/',
-
-});
-
-bree.start();
 
 // Set up express
 const app = express();
@@ -79,4 +76,4 @@ app.listen(config.server.port, () => {
 	console.log(`Example app listening at http://localhost:${config.server.port}`);
 });
 
-export { version, config, bree};
+export { version };

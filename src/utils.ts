@@ -1,8 +1,9 @@
 import Db from 'mysql2-async';
-import { Student, Instructor, Payload, RegistrationData, User } from './types';
-import { config } from './server';
+import { Student, Instructor, Payload, RegistrationData, User, Config } from './types.js';
 import crypto from 'crypto';
 import { Temporal } from '@js-temporal/polyfill';
+import YAML from 'js-yaml';
+import fs from 'fs';
 
 class Utils {
 	/**
@@ -12,6 +13,11 @@ class Utils {
 	 * Settings are defined in the config file.
 	 */
 	private static pool: Db;
+
+	/**
+	 * Config used by everything
+	 */
+	public static config: Config;
 
 	/**
 	 * 
@@ -29,7 +35,7 @@ class Utils {
 	 * Checks if the user is a student and returns a student object if there is one.
 	 *
 	 * @param {string} googleid The googleid of the user.
-	 */
+	 */ 
 	private static async checkIfStudent(googleid: string): Promise<Student | Error | undefined> {
 		let student: Student = await Utils.pool.getrow<Student>('select firstname, lastname, googleid, `id` from studentdb where `googleid` = ?;', [googleid]).catch(e => {
 			console.error(e);
@@ -89,11 +95,11 @@ class Utils {
 	 */
 	public static async registerUser(regdata: RegistrationData): Promise<Payload | Error> {
 
-		if (regdata.email.match(RegExp(config.info.studentCheck))) {
+		if (regdata.email.match(RegExp(this.config.info.studentCheck))) {
 			return Utils.registerStudent(regdata);
 		}
 
-		if (regdata.email.match(RegExp(config.info.instructorCheck))) {
+		if (regdata.email.match(RegExp(this.config.info.instructorCheck))) {
 			return Utils.registerInstructor(regdata);
 		}
 
@@ -197,7 +203,7 @@ class Utils {
 		for (const promise of promises) {
 			const result = await promise;
 			if (result !== undefined && result.id) {
-				if (result.email.match(RegExp(config.info.studentCheck)) !== null) {					
+				if (result.email.match(RegExp(this.config.info.studentCheck)) !== null) {					
 					return new Student(result);
 				} else {
 					return new Instructor(result);
@@ -217,6 +223,14 @@ class Utils {
 		});
 	}
 
+	/**
+	 * Loads the configuration file.
+	 */
+	public static async loadConfig(path: string): Promise<Config> {
+		this.config = YAML.load(fs.readFileSync(path, 'utf8'), {schema: YAML.CORE_SCHEMA}) as Config;
+		// console.log(this.config);
+		return this.config;
+	}
 }
 
 export default Utils;
