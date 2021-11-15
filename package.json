@@ -36,6 +36,6 @@
         "gulp-typedoc": "^3.0.1",
         "gulp-typescript": "^6.0.0-alpha.1",
         "source-map-support": "^0.5.20",
-        "typedoc": "^0.22.7"
+        "typedoc": "^0.22.9"
     }
 }
