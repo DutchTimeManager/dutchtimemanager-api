@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { Temporal } from '@js-temporal/polyfill';
 import YAML from 'js-yaml';
 import fs from 'fs';
+import { Stream } from 'stream';
 
 class Utils {
 	/**
@@ -214,6 +215,30 @@ class Utils {
 		return;
 	} 
 
+	/**
+	 * 
+	 * @returns {Promise<Payload>}
+	 */
+	public static async debugListUsers(): Promise<Payload> {
+		
+		const queries = [
+			'SELECT `id`, firstname, lastname from instructordb;',
+			'SELECT `id`, firstname, lastname from studentdb;'
+		];
+		const users: User[] = [];
+		const streams = queries.map(query => Utils.pool.stream<User>(query));
+		
+		for (const stream of streams) {
+			for await (const user of stream) {
+				users.push(new User(user));
+			}
+		}
+
+		console.log(users);
+		return new Payload({status:'200', data: users});
+	}
+
+	// Misc routines
 	/**
 	 * Performs routine maintenance and cleanup on the database.
 	 */ 

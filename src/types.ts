@@ -11,6 +11,7 @@ interface Config {
 			enabled: boolean,
 			db_cron: string
 			}
+		debug: boolean
     };
 	db: Required<{
 		host: string,
@@ -179,12 +180,12 @@ class Payload {
 	public time: string = Temporal.Now.instant().toString();
 	public version: string = version;
 	public status?: string;
-	public data?: User;
+	public data?: User | User[] | Event | Event[];
 	private token?: string;
 
 	constructor(payload:{
 		status: string,
-		data?: User,
+		data?: User | User[] | Event | Event[],
 		token?: string
 	}) {
 		this.status = payload.status;

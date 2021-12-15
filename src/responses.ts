@@ -226,6 +226,11 @@ class Responses {
 
 		return this.sendPayload(payload, req, res );
 	}
+
+	// Debug
+	public static async debugListUsers(req: express.Request, res: express.Response): Promise<void> {
+		return this.sendPayload(await Utils.debugListUsers(), req, res);
+	}
 }
 
 export default Responses;

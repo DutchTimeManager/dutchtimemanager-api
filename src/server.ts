@@ -1,17 +1,10 @@
-// console.log('Before imports');
-
 import express from 'express';
 import Db from 'mysql2-async';
 import Responses from './responses.js';
 import Utils from './utils.js';
 import fs from 'fs';
-import path from 'path';
 import yargs from 'yargs';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 
-// Polyfill for __dirname
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load package.json
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
@@ -64,8 +57,16 @@ app.get('/', (req, res) => Responses.statusCheck(req, res));
 app.get('/oauthlogin/start', (req, res) => Responses.startOAuth2(req, res));
 app.get('/oauthlogin/catch', (req, res) => Responses.catchOAuth2(req, res));
 
-// Test endpointy
-app.get('/test', (req, res) => Responses.getUserFromId(req, res));
+// User endpoint
+app.get('/user/fromid', (req, res) => Responses.getUserFromId(req, res));
+
+// Debug endpoints DO NOT ENABLE IN PRODUCTION check your config.yaml
+if (config.server.debug) {
+	console.warn('WARNING: You are using DEBUG ENDPOINTS. Do NOT have debug enabled in a production setting.');
+	app.get('/debug/list/users', (req, res) => Responses.debugListUsers(req, res));
+	
+
+}
 
 // Catch all other requests and responds 404
 app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
