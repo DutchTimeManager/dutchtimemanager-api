@@ -15,4 +15,10 @@
 > - /oauthlogin/
 >   - [/oauthlogin/start](./Endpoints/oauthlogin/start)
 >   - [/oauthlogin/catch](./Endpoints/oauthlogin/catch)
->  
+
+
+## TODO:
+- [ ] Write up spec for:
+	- [ ] Get events for user in timeframe
+		- [ ] Week
+		- [ ] Month

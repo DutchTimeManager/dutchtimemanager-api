@@ -1,9 +1,11 @@
 import express from 'express';
 import Db from 'mysql2-async';
 import Responses from './responses.js';
-import Utils from './utils.js';
+import Utils from './utils/utils.js';
 import fs from 'fs';
 import yargs from 'yargs';
+import 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 
 
 // Load package.json
@@ -48,7 +50,13 @@ Utils.setup(pool);
 
 // Set up express
 const app = express();
+const limiter = rateLimit({
+	windowMs: 1*60*1000,
+	max: 20,
+	// onLimitReached:
+});
 
+app.use(limiter);
 
 // Status check of API server
 app.get('/', (req, res) => Responses.statusCheck(req, res));
@@ -64,8 +72,8 @@ app.get('/user/fromid', (req, res) => Responses.getUserFromId(req, res));
 if (config.server.debug) {
 	console.warn('WARNING: You are using DEBUG ENDPOINTS. Do NOT have debug enabled in a production setting.');
 	app.get('/debug/list/users', (req, res) => Responses.debugListUsers(req, res));
-	
-
+	app.get('/debug/list/students', (req, res) => Responses.debugListStudents(req,res));
+	app.get('/debug/list/instructors', (req, res) => Responses.debugListInstructors(req,res));
 }
 
 // Catch all other requests and responds 404

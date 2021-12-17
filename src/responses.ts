@@ -3,7 +3,9 @@ import express from 'express';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
 import { Instructor, Payload, RegistrationData, Student } from './types.js';
-import Utils from './utils.js';
+import Utils from './utils/utils.js';
+import AuthUtils from './utils/auth.js';
+import UserUtils from './utils/users.js';
 
 class Responses {
 	private static OAuth2Client: OAuth2Client;
@@ -140,7 +142,7 @@ class Responses {
 								console.log(gid);
 								
 							} else { return Responses.internalError(req, res, new Error('No Google ID')); }
-							const user = await Utils.userExists(gid);
+							const user = await UserUtils.userExists(gid);
 
 							console.log(user);
 
@@ -228,8 +230,31 @@ class Responses {
 	}
 
 	// Debug
+	/**
+	 * Lists all users.
+	 * @param {express.Request} req 
+	 * @param {express.Response} res 
+	 */
 	public static async debugListUsers(req: express.Request, res: express.Response): Promise<void> {
 		return this.sendPayload(await Utils.debugListUsers(), req, res);
+	}
+
+	/**
+	 * Lists all Students.
+	 * @param {express.Request} req
+	 * @param {express.Response} res
+	 */
+	public static async debugListStudents(req: express.Request, res: express.Response): Promise<void> {
+		return this.sendPayload(await Utils.debugListStudents(), req, res);
+	}
+
+	/**
+	 * Lists all Students.
+	 * @param {express.Request} req
+	 * @param {express.Response} res
+	 */
+	public static async debugListInstructors(req: express.Request, res: express.Response): Promise<void> {
+		return this.sendPayload(await Utils.debugListInstructors(), req, res);
 	}
 }
 
