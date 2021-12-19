@@ -6,6 +6,7 @@ import { Instructor, Payload, RegistrationData, Student } from './types.js';
 import Utils from './utils/utils.js';
 import AuthUtils from './utils/auth.js';
 import UserUtils from './utils/users.js';
+import DebugUtils from './utils/debug.js';
 
 class Responses {
 	private static OAuth2Client: OAuth2Client;
@@ -150,7 +151,7 @@ class Responses {
 							if (user instanceof Student || user instanceof Instructor) {
 
 								console.log('Logging in');
-								const loggedin = Utils.loginUser(user);
+								const loggedin = AuthUtils.loginUser(user);
 
 								if (loggedin instanceof Error) {
 									console.error(loggedin);
@@ -183,7 +184,7 @@ class Responses {
 										lastname: lastname
 									};
 
-									const regpayload = await Utils.registerUser(regData);
+									const regpayload = await AuthUtils.registerUser(regData);
 
 									if (regpayload instanceof Error) {
 										console.error(regpayload);
@@ -216,7 +217,7 @@ class Responses {
 		const id: string = req.query.id.toString();
 		console.log(id);
         
-		const user = await Utils.getUserFromID(id);
+		const user = await UserUtils.getUserFromID(id);
 		if (user instanceof Error) {
 			console.error(user);
 			return Responses.internalError(req, res, user);
@@ -236,7 +237,7 @@ class Responses {
 	 * @param {express.Response} res 
 	 */
 	public static async debugListUsers(req: express.Request, res: express.Response): Promise<void> {
-		return this.sendPayload(await Utils.debugListUsers(), req, res);
+		return this.sendPayload(await DebugUtils.debugListUsers(), req, res);
 	}
 
 	/**
@@ -245,7 +246,7 @@ class Responses {
 	 * @param {express.Response} res
 	 */
 	public static async debugListStudents(req: express.Request, res: express.Response): Promise<void> {
-		return this.sendPayload(await Utils.debugListStudents(), req, res);
+		return this.sendPayload(await DebugUtils.debugListStudents(), req, res);
 	}
 
 	/**
@@ -254,7 +255,7 @@ class Responses {
 	 * @param {express.Response} res
 	 */
 	public static async debugListInstructors(req: express.Request, res: express.Response): Promise<void> {
-		return this.sendPayload(await Utils.debugListInstructors(), req, res);
+		return this.sendPayload(await DebugUtils.debugListInstructors(), req, res);
 	}
 }
 

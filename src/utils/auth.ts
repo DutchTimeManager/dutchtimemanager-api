@@ -1,6 +1,7 @@
-import 'crypto';
-import { RegistrationData, Payload, Instructor, Student, User } from '../types';
-import Utils from './utils';
+import { Temporal } from '@js-temporal/polyfill';
+import crypto from 'crypto';
+import { RegistrationData, Payload, Instructor, Student, User } from '../types.js';
+import Utils from './utils.js';
 
 class AuthUtils extends Utils {
 	/**

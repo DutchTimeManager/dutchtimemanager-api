@@ -1,5 +1,5 @@
-import { Instructor, Payload, Student, User } from '../types';
-import Utils from './utils';
+import { Instructor, Payload, Student, User } from '../types.js';
+import Utils from './utils.js';
 
 class UserUtils extends Utils {
 

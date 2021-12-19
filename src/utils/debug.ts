@@ -1,7 +1,29 @@
-import { Payload, Student, Instructor } from '../types';
-import Utils from './utils';
+import { Payload, Student, Instructor, User } from '../types.js';
+import Utils from './utils.js';
 
 class DebugUtils extends Utils {
+	/**
+	 * Lists all the users in the database.
+	 * @returns {Promise<Payload>}
+	 */
+	public static async debugListUsers(): Promise<Payload> {
+		
+		const queries = [
+			'SELECT `id`, firstname, lastname from instructordb;',
+			'SELECT `id`, firstname, lastname from studentdb;'
+		];
+		const users: User[] = [];
+		const streams = queries.map(query => Utils.pool.stream<User>(query));
+		
+		for (const stream of streams) {
+			for await (const user of stream) {
+				users.push(new User(user));
+			}
+		}
+
+		return new Payload({status:'200', data: users});
+	}
+
 	/**
 	 * Lists all the students in the database.
 	 * @returns {Promise<Payload>}
@@ -16,7 +38,7 @@ class DebugUtils extends Utils {
 	}
 
 	/**
-	 * Lists all the students in the database.
+	 * Lists all the Instructors in the database.
 	 * @returns {Promise<Payload>}
 	 */
 	public static async debugListInstructors(): Promise<Payload> {
