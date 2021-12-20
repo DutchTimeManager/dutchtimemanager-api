@@ -230,6 +230,30 @@ class Responses {
 		return this.sendPayload(payload, req, res );
 	}
 
+	/**
+	 * Get user from token.
+	 * @param {express.Request} req
+	 * @param {express.Response} res
+	 * @returns {Promise<void>}
+	 */
+	public static async getUserFromToken(req: express.Request, res: express.Response): Promise<void> {
+		const token: string = req.query.token.toString();
+
+		const user = await AuthUtils.authenticateToken(token);
+
+		if (user instanceof Error) {
+			console.error(user);
+			return Responses.internalError(req, res, user);
+		} else {
+			const payload: Payload = new Payload({
+				status: 'OK',
+				data: user,
+			});
+
+			return this.sendPayload(payload, req, res);
+		}
+	} 
+
 	// Debug
 	/**
 	 * Lists all users.

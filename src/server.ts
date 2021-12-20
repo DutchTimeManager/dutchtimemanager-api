@@ -67,6 +67,7 @@ app.get('/oauthlogin/catch', (req, res) => Responses.catchOAuth2(req, res));
 
 // User endpoint
 app.get('/user/fromid', (req, res) => Responses.getUserFromId(req, res));
+app.get('/user/fromtoken', (req, res) => Responses.getUserFromToken(req, res));
 
 // Debug endpoints DO NOT ENABLE IN PRODUCTION check your config.yaml
 if (config.server.debug) {
