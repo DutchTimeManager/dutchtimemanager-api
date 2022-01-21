@@ -58,7 +58,9 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.options('/*', function(req, res){
-	res.header('Access-Control-Allow-Origin', '*');
+	const origin = req.header('Origin');
+	res.header('Vary', 'Origin');
+	res.header('Access-Control-Allow-Origin', origin);
 	res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-dtm-token');
 	res.send(200);
