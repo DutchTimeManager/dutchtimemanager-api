@@ -11,15 +11,21 @@ import DebugUtils from './utils/debug.js';
 class Responses {
 	private static OAuth2Client: OAuth2Client;
 
+
+	// General response methods
 	/**
-	 * Initialize the Oauth2 client to google.
+	 * Sends back payload to the client.
+	 * @param payload Payload to be sent to the client.
+	 * @param req Request object from Express.
+	 * @param res Response object from Express.
 	 */
-	public static setup(): void {
-		Responses.OAuth2Client = new google.auth.OAuth2(
-			Utils.config.google.clientID,
-			Utils.config.google.clientSecret,
-			Utils.config.info.apiBase + '/oauthlogin/catch'
-		);
+	private static sendPayload(payload: Payload, req: express.Request, res: express.Response): void {
+		res.header('Content-Type', 'application/json');
+		if (payload.getToken()) {
+			res.cookie('token', payload.getToken(), { maxAge: 3600000, domain: Utils.config.info.apiBase });
+		}
+	
+		res.status(200).send(JSON.stringify(payload, Payload.replacer));
 	}
 
 	/**
@@ -65,6 +71,19 @@ class Responses {
 		res.status(500).send(`HTTP/${req.httpVersion} ${req.method} ${req.path} Internal Server Error \n\n${err.toString()}`);
 	}
 
+	// Auth endpoints.
+
+	/**
+	 * Initialize the Oauth2 client to google.
+	 */
+	public static setup(): void {
+		Responses.OAuth2Client = new google.auth.OAuth2(
+			Utils.config.google.clientID,
+			Utils.config.google.clientSecret,
+			Utils.config.info.apiBase + '/oauthlogin/catch'
+		);
+	}
+
 	/**
 	 * Start OAuth2 authentication.
 	 * @param {express.Request} req
@@ -78,29 +97,14 @@ class Responses {
 
 		res.redirect(authUrl);
 	}
-
-	/**
-	 * Sends back payload to the client.
-	 * @param payload Payload to be sent to the client.
-	 * @param req Request object from Express.
-	 * @param res Response object from Express.
-	 */
-	private static sendPayload(payload: Payload, req: express.Request, res: express.Response): void {
-		res.header('Content-Type', 'application/json');
-		if (payload.getToken()) {
-			res.cookie('token', payload.getToken(), { maxAge: 3600000, domain: Utils.config.info.apiBase });
-		}
-
-		res.status(200).send(JSON.stringify(payload, Payload.replacer));
-	}
 	
 	/**
      * 
-     * @param token {string} Token to be verified.
+     * @param token {string} Token to be returned to the user.
      * @param res 
      */
 	private static tokenRedir(token: string, res: express.Response): void {
-		res.redirect(`${Utils.config.info.webappBase}/?t=${token}`);
+		res.redirect(`${Utils.config.info.webappBase}/?t=${encodeURIComponent(token)}`);
 	}
 
 	/**
@@ -208,6 +212,7 @@ class Responses {
 		}
 	}
 
+	// User endpoints
 	/**
      * Get user from id.
      * @param {express.Request} req
@@ -237,7 +242,7 @@ class Responses {
 	 * @returns {Promise<void>}
 	 */
 	public static async getUserFromToken(req: express.Request, res: express.Response): Promise<void> {
-		const token: string = req.query.token.toString();
+		const token: string = req.headers['x-dtm-token'][0];
 
 		const user = await AuthUtils.authenticateToken(token);
 
@@ -254,6 +259,20 @@ class Responses {
 		}
 	} 
 
+	// Event endpoints
+
+	/**
+	 * Get event from id.
+	 * @param {express.Request} req
+	 * @param {express.Response} res
+	 * @returns {Promise<void>}
+	 */ 
+	public static async getEventFromId(req: express.Request, res: express.Response): Promise<void> {
+		const id: string = req.query.id.toString();
+		
+		
+		// TODO
+	}
 	// Debug
 	/**
 	 * Lists all users.

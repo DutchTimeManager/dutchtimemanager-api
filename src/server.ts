@@ -4,7 +4,6 @@ import Responses from './responses.js';
 import Utils from './utils/utils.js';
 import fs from 'fs';
 import yargs from 'yargs';
-import 'express-rate-limit';
 import rateLimit from 'express-rate-limit';
 
 
@@ -58,6 +57,13 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
+app.options('/*', function(req, res, next){
+	res.header('Access-Control-Allow-Origin', 'https://dtm.t-ch.net');
+	res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-dtm-token');
+	res.send(200);
+});
+
 // Status check of API server
 app.get('/', (req, res) => Responses.statusCheck(req, res));
 
@@ -68,6 +74,12 @@ app.get('/oauthlogin/catch', (req, res) => Responses.catchOAuth2(req, res));
 // User endpoint
 app.get('/user/fromid', (req, res) => Responses.getUserFromId(req, res));
 app.get('/user/fromtoken', (req, res) => Responses.getUserFromToken(req, res));
+
+
+// Event endpoint
+// app.post('/event/new', (req, res))
+app.get('/event/fromid', (req, res) => Responses.getEventFromId(req, res));
+
 
 // Debug endpoints DO NOT ENABLE IN PRODUCTION check your config.yaml
 if (config.server.debug) {

@@ -84,28 +84,7 @@ class UserUtils extends Utils {
 		return;
 	} 
 
-	/**
-	 * Lists all the users in the database.
-	 * @returns {Promise<Payload>}
-	 */
-	public static async debugListUsers(): Promise<Payload> {
-		
-		const queries = [
-			'SELECT `id`, firstname, lastname from instructordb;',
-			'SELECT `id`, firstname, lastname from studentdb;'
-		];
-		const users: User[] = [];
-		const streams = queries.map(query => Utils.pool.stream<User>(query));
-		
-		for (const stream of streams) {
-			for await (const user of stream) {
-				users.push(new User(user));
-			}
-		}
-
-		console.log(users);
-		return new Payload({status:'200', data: users});
-	}
+	
 
 
 
