@@ -242,21 +242,28 @@ class Responses {
 	 * @returns {Promise<void>}
 	 */
 	public static async getUserFromToken(req: express.Request, res: express.Response): Promise<void> {
-		const token: string = req.headers['x-dtm-token'][0];
 
-		const user = await AuthUtils.authenticateToken(token);
-
-		if (user instanceof Error) {
-			console.error(user);
-			return Responses.internalError(req, res, user);
-		} else {
-			const payload: Payload = new Payload({
-				status: 'OK',
-				data: user,
-			});
-
-			return this.sendPayload(payload, req, res);
+		if (req.headers['x-dtm-token'] !== undefined) {
+			const token: string = req.headers['x-dtm-token'] as string;
+			const user = await AuthUtils.authenticateToken(token);
+			
+			if (user instanceof Error) {
+				console.error(user);
+				return Responses.internalError(req, res, user);
+			} else {
+				const payload: Payload = new Payload({
+					status: 'OK',
+					data: user,
+				});
+	
+				return this.sendPayload(payload, req, res);
+			}
 		}
+		else {
+			return Responses.invalidRequest(req, res);
+		}
+
+
 	} 
 
 	// Event endpoints

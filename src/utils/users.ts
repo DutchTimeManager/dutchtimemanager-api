@@ -80,14 +80,8 @@ class UserUtils extends Utils {
 				}
 			}
 		}
-
 		return;
 	} 
-
-	
-
-
-
 }
 
 export default UserUtils;

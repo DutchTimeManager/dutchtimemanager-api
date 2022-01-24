@@ -109,10 +109,12 @@ class AuthUtils extends Utils {
 	 */
 	public static async authenticateToken(token: string): Promise<Instructor | Student | undefined | Error> {
 		const userid: string | undefined = await this.pool.getval<string>('select `id` from tokendb where token = ?;', [token]);
+
 		if (!userid) {
 			return undefined;
 		}
 		const user: Instructor| Student | Error = await UserUtils.getUserFromID(userid);
+		
 		if (!user) {
 			return undefined;
 		}

@@ -58,19 +58,19 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.options('/*',function(req, res){
-	const origin = req.header('Origin');
-	res.header('Vary', 'Origin');
-	res.header('Access-Control-Allow-Origin', origin);
+	// const origin = req.header('Origin');
+	// res.header('Vary', 'Origin');
+	res.header('Access-Control-Allow-Origin', 'https://dtm.t-ch.net');
 	res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-dtm-token');
 	res.sendStatus(200);
 });
 
 app.use(function(req, res, next) {
-	const origin = req.header('Origin');
-	res.header('Vary', 'Origin');
-	res.header('Access-Control-Allow-Origin', '*');
-	res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+	// const origin = req.header('Origin');
+	// res.header('Vary', 'Origin');
+	res.header('Access-Control-Allow-Origin', 'https://dtm.t-ch.net');
+	res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 	next();
 });
@@ -106,7 +106,7 @@ app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
 // Start server
 app.listen(config.server.port, () => {
 	
-	console.log(`Example app listening at http://localhost:${config.server.port}`);
+	console.log(`DTM app listening at http://localhost:${config.server.port}`);
 });
 
 export { version };
