@@ -58,18 +58,24 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.options('/*',function(req, res){
-	// const origin = req.header('Origin');
-	// res.header('Vary', 'Origin');
-	res.header('Access-Control-Allow-Origin', 'https://dtm.t-ch.net');
+	let origin = config.info.webappBase;
+	if (config.server.debug) {
+		origin = req.header('Origin');
+		res.header('Vary', 'Origin');
+	}
+	res.header('Access-Control-Allow-Origin', origin);
 	res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, X-dtm-token');
 	res.sendStatus(200);
 });
 
 app.use(function(req, res, next) {
-	// const origin = req.header('Origin');
-	// res.header('Vary', 'Origin');
-	res.header('Access-Control-Allow-Origin', 'https://dtm.t-ch.net');
+	let origin = config.info.webappBase;
+	if (config.server.debug) {
+		origin = req.header('Origin');
+		res.header('Vary', 'Origin');
+	}
+	res.header('Access-Control-Allow-Origin', origin);
 	res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 	next();
