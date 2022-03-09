@@ -44,7 +44,6 @@ const pool: Db = new Db({
 	queueLimit: 0,
 });
 
-Responses.setup();
 Utils.setup(pool);
 
 // Set up express
@@ -111,7 +110,6 @@ app.all('/*', (req, res) => Responses.notFoundRequest(req, res));
 
 // Start server
 app.listen(config.server.port, () => {
-	
 	console.log(`DTM app listening at http://localhost:${config.server.port}`);
 });
 

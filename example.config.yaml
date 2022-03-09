@@ -16,7 +16,12 @@ info:
 
 server:
   port: 4000
-  maintainence:
+  maintainence:           # Not working atm.
     enabled: true         # Turns on or off automatic maintainence, May lead to full hard drives if left off for too long
     db_cron: 23 1 * * *   # cron syntax of when the database should be cleaned,
                           # recommended to be a time that no users would be using the system every day
+  debug: false            # Disables some security measures to allow for easier development/debugging
+                          # NEVER enable in a production setting.
+  security:
+    salt_key: 'dtm'       # Salt secret for Oauth states
+    

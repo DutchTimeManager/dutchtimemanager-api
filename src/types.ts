@@ -12,6 +12,9 @@ interface Config {
 			db_cron: string
 			}
 		debug: boolean
+		security: {
+			salt_key: string
+			}
     };
 	db: Required<{
 		host: string,

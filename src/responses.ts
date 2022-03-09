@@ -10,7 +10,8 @@ import DebugUtils from './utils/debug.js';
 
 class Responses {
 	private static OAuth2Client: OAuth2Client;
-
+	
+	private static States: { string: string };
 
 	// General response methods
 	/**
@@ -72,28 +73,37 @@ class Responses {
 	}
 
 	// Auth endpoints.
-
-	/**
-	 * Initialize the Oauth2 client to google.
-	 */
-	public static setup(): void {
-		Responses.OAuth2Client = new google.auth.OAuth2(
-			Utils.config.google.clientID,
-			Utils.config.google.clientSecret,
-			Utils.config.info.apiBase + '/oauthlogin/catch'
-		);
-	}
-
 	/**
 	 * Start OAuth2 authentication.
 	 * @param {express.Request} req
 	 * @param {express.Response} res
 	 */
 	public static startOAuth2(req: express.Request, res: express.Response): void {
+		let redir: string;
+		// if (Utils.config.server.debug){
+		// 	redir = Utils.config.info.apiBase + '/oauthlogin/catch?o=' + encodeURIComponent(req.headers['origin']);
+		// } else {
+		redir = Utils.config.info.apiBase + '/oauthlogin/catch';
+		// }
+
+		if (Utils.config.server.debug) {
+			const state = Utils.generateState(origin);
+			redir += 'state=' + encodeURIComponent(state);
+		}
+
+
+		Responses.OAuth2Client = new google.auth.OAuth2(
+			Utils.config.google.clientID,
+			Utils.config.google.clientSecret,
+			redir
+		);
 		const authUrl = Responses.OAuth2Client.generateAuthUrl({
 			access_type: 'online',
+			state: '',
 			scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email', 'openid']
 		});
+		console.log(authUrl);
+		
 
 		res.redirect(authUrl);
 	}
@@ -103,8 +113,11 @@ class Responses {
      * @param token {string} Token to be returned to the user.
      * @param res 
      */
-	private static tokenRedir(token: string, res: express.Response): void {
-		res.redirect(`${Utils.config.info.webappBase}/?t=${encodeURIComponent(token)}`);
+	private static tokenRedir(token: string, origin: string, res: express.Response): void {
+		if (!Utils.config.server.debug) {
+			origin = Utils.config.info.webappBase;
+		}
+		res.redirect(origin + '/?t=' + encodeURIComponent(token));
 	}
 
 	/**
@@ -163,10 +176,9 @@ class Responses {
 								}
 
 								const token = loggedin.getToken();
-								
+								const apiorigin = Utils.getState(req.query.state[0] ?? '');
 								if (token) {
-									Responses.tokenRedir(token, res);
-									
+									Responses.tokenRedir(token, apiorigin, res);
 								}
 
 							}
@@ -177,7 +189,6 @@ class Responses {
 
 								if (response.data.emailAddresses !== undefined && response.data?.names !== undefined) {
 									console.log('Made it to data check');
-
 
 									const firstname: string = response.data.names[0].givenName ??= 'fail', lastname: string = response.data.names[0].familyName ??= 'fail';
 
@@ -197,7 +208,12 @@ class Responses {
 
 									const token = regpayload.getToken();
 									if ( token !== undefined) {
-										Responses.tokenRedir(token, res);
+										const apiorigin = Utils.getState(req.query.state[0] ?? '');
+										if (token) {
+											Responses.tokenRedir(token, apiorigin, res);
+										}
+									} else {
+										return Responses.internalError(req, res, new Error('No token'));
 									}
 								}
 							}
