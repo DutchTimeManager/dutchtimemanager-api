@@ -17,7 +17,7 @@
     "dependencies": {
         "@js-temporal/polyfill": "^0.3.0",
         "bree": "^7.1.5",
-        "express": "^4.17.2",
+        "express": "^4.17.3",
         "express-rate-limit": "^6.2.0",
         "googleapis": "^96.0.0",
         "googleapis-common": "^5.0.5",
